@@ -1,0 +1,20 @@
+#!/bin/bash
+date=`/bin/date -d today +"%Y-%m-%d %T"`
+#ip1=`/sbin/ifconfig | grep -oP "(?<=inet addr:)[^ ]+" | head -1`
+#[ -z $ip1 ] && ip=$1 || ip=$ip1
+ip=$1
+data=`top -bn 3 -i`
+cpuidle=`echo "$data"|grep -oP "[0-9\.]+(?= id)"|tail -1`
+[ -z $cpuidle ] && cpuidle=`echo "$data"|grep -oP "[0-9\.]+(?=%id)"|tail -1`
+cpuper=`echo "scale=2;100-$cpuidle"|bc`
+
+memlist=(`free -m|grep Mem:`)
+memper=`echo "scale=2;${memlist[2]}*100/${memlist[1]}"|bc`
+
+j=0
+for i in $cpuper $memper
+do
+    [[ $i =~ ^\.[0-9]+ ]] && per[$j]="0$i" || per[$j]=$i
+    j=$[$j+1]
+done
+echo "Date:$date  IP:$ip  CPU_Used:${per[0]}%  Memory_Used:${per[1]}%"

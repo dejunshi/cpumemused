@@ -1,0 +1,9 @@
+#!/bin/bash
+date=`/bin/date -d today +"%Y-%m-%d %T"`
+#ip1=`/sbin/ifconfig | grep -oP "(?<=inet addr:)[^ ]+" | head -1`
+#[ -z $ip1 ] && ip=$1 || ip=ip1
+ip=$1
+num=`/usr/bin/nvidia-smi|grep -oP "[0-9]+(?=%)" | wc -l`
+use=`/usr/bin/nvidia-smi|grep -oP "[0-9]+(?=%)"|xargs -n1000|sed -r "s/ /+/g;s/.*/scale=3;(&)\/$num/"|bc`
+[[ $use =~ ^\.[0-9]+ ]] && per="0$use" || per=$use
+echo "IP addr:$ip   Date: $date   gpu_used: $per%"
